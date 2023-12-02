@@ -98,6 +98,11 @@ p#postfixResult strong {
     text-shadow: 1px 1px 3px #000;
 }
 
+div#calculator a {
+    text-decoration: underline;
+    color: #000;
+}
+
 @keyframes BackgroundMovement {
     0% {
         background-position: 0%, 0%;

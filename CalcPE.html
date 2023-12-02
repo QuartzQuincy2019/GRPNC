@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Glue RPN Calculator (Pocket Edition)</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width">
+    <style>
+        body {
+            background-color: #f8db8a;
+            font-size: 1em;
+        }
+
+        div#calculator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            color: #000;
+            padding: 1em;
+            text-align: left;
+            background-color: #ffffff60;
+            border: 0.3em solid #a94f00;
+            box-shadow: 0 0 0.8em #a94f00;
+            border-radius: 1em;
+            box-sizing: border-box;
+        }
+
+        div#calculator h1 {
+            font-size: 1.1em;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+        }
+
+        div#calculator p {
+            font-size: 1.2em;
+            overflow-wrap: anywhere;
+        }
+
+        div#calculator p strong {
+            text-shadow: 0 0 0.1em #000;
+        }
+
+        p#calculatedResult {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        p#calculatedResult strong {
+            font-size: 1.3em;
+        }
+
+        p#postfixResult {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        p#postfixResult strong {
+            font-size: 1.1em;
+        }
+
+        #calculator input[type="text"] {
+            outline: none;
+            display: inline-block;
+            width: 20%;
+            margin: 0.2em 0;
+            padding: 0.3em 0.4em;
+            box-sizing: border-box;
+
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1em;
+            color: #000000;
+
+            border-radius: 0.5em;
+            border: none;
+            border-bottom: solid;
+            border-width: 0.2em;
+            border-color: #000;
+
+            -webkit-transition: all 0.8s ease-in-out;
+            transition: all 0.8s ease-in-out;
+        }
+
+        #calculator input[type="text"]:focus {
+            color: #fff;
+            box-shadow: inset 0px 0px 1em #ffffff;
+            background-image: linear-gradient(135deg,
+                    #00129c,
+                    #510490,
+                    #a60c7a,
+                    #971639,
+                    #230383);
+            background-size: 300%, 300%;
+            border-bottom: solid;
+            border-color: #fff;
+            width: 100%;
+            border-width: 0.2em;
+            animation: BackgroundMovement 8s ease-in-out infinite;
+        }
+
+        #calculator input[type="text"]:hover {
+            box-shadow: 0px 0px 2em #ffffff;
+            border-color: #2ef9e2;
+        }
+
+        #calculator input[type="text"]::selection {
+            background-color: #fff;
+            color: #000;
+            text-shadow: 0 0 0.2em #000;
+        }
+
+        div#calculator a {
+            text-decoration: underline;
+            color: #000;
+        }
+
+        @keyframes BackgroundMovement {
+            0% {
+                background-position: 0%, 0%;
+            }
+
+            25% {
+                background-position: 0%, 100%;
+            }
+
+            50% {
+                background-position: 100%, 100%;
+            }
+
+            75% {
+                background-position: 100%, 0%;
+            }
+
+            100% {
+                background-position: 0%, 0%;
+            }
+        }
+    </style>
+    <script>
+        //dv.js
+        var __version = "v1.0.1";
+    </script>
+</head>
+
+<body>
+    <div id="calculator">
+        <a href="https://github.com/QuartzQuincy2019/GRPNC">
+            <h1 id="calculatorTitle"></h1>
+        </a>
+        <form id="calculatorForm">
+            <input required type="text" id="expressionInput" maxlength="255"
+                placeholder="Enter a linear expression here..." oninput="updateInputValue()">
+            <!-- Max Result: pow(2,1023)*1.999999999999999 -->
+        </form>
+        <p id="calculatedResult"><strong>calculatedResult</strong></p>
+        <p id="postfixResult"><strong>postfix(RPN)Result</strong></p>
+    </div>
+    <script>
+        //core.js
+        function isOperator(token) {
+            return token === "+" || token === "-" || token === "*" || token === "/";
+        }
+
+        function isFunction(token) {
+            return token === "sqrt" || token === "pow" || token === "ln" || token === "log" || token === "square" || token === "cube";
+        }
+
+        function isSeparator(token) {
+            return token === ",";
+        }
+
+        function getNextToken(expression, pos) {
+            while (pos[0] < expression.length && expression[pos[0]] === ' ') {
+                pos[0]++;
+            }
+            if (pos[0] >= expression.length) return "";
+
+            if (isdigit(expression[pos[0]]) || expression[pos[0]] === '.' ||
+                (expression[pos[0]] === '-' && (pos[0] === 0 || expression[pos[0] - 1] === '('))) {
+                let number = expression[pos[0]] === '-' ? '-' : '';
+                if (expression[pos[0]] === '-') pos[0]++;
+                while (pos[0] < expression.length && (isdigit(expression[pos[0]]) || expression[pos[0]] === '.')) {
+                    number += expression[pos[0]++];
+                }
+                return number;
+            }
+            else if (isalpha(expression[pos[0]])) {
+                let func = "";
+                while (pos[0] < expression.length && isalpha(expression[pos[0]])) {
+                    func += expression[pos[0]++];
+                }
+                return func;
+            }
+            else {
+                return expression[pos[0]++];
+            }
+        }
+
+        function isdigit(ch) {
+            return /\d/.test(ch);
+        }
+
+        function isalpha(ch) {
+            return /[a-zA-Z]/.test(ch);
+        }
+
+        function infixToPostfix(infix) {
+            let stack = [];
+            let postfix = "";
+            let pos = [0];
+
+            let token = getNextToken(infix, pos);
+
+            while (token !== "") {
+                if (!isNaN(parseFloat(token)) && isFinite(token)) {
+                    postfix += token + " ";
+                }
+                else if (token === "(") {
+                    stack.push(token);
+                }
+                else if (token === ")") {
+                    while (stack.length > 0 && stack[stack.length - 1] !== "(") {
+                        postfix += stack.pop() + " ";
+                    }
+                    stack.pop();
+                    if (stack.length > 0 && isFunction(stack[stack.length - 1])) {
+                        postfix += stack.pop() + " ";
+                    }
+                }
+                else if (isSeparator(token)) {
+                    while (stack.length > 0 && stack[stack.length - 1] !== "(") {
+                        postfix += stack.pop() + " ";
+                    }
+                }
+                else if (isOperator(token) || isFunction(token)) {
+                    while (stack.length > 0 && precedence[stack[stack.length - 1]] >= precedence[token] && !isFunction(stack[stack.length - 1])) {
+                        postfix += stack.pop() + " ";
+                    }
+                    stack.push(token);
+                }
+
+                token = getNextToken(infix, pos);
+            }
+
+            while (stack.length > 0) {
+                postfix += stack.pop() + " ";
+            }
+
+            return postfix;
+        }
+
+        let precedence = {
+            "+": 1, "-": 1,
+            "*": 2, "/": 2,
+            "sqrt": 3, "pow": 3, "ln": 3, "log": 3, "square": 3, "cube": 3,
+            ",": 0
+        };
+
+
+        function calculatePostfix(postfix) {
+            let stack = [];
+            let tokens = postfix.split(" ").filter(token => token.trim() !== "");
+
+            tokens.forEach(token => {
+                if (!isNaN(parseFloat(token)) && isFinite(token)) {
+                    stack.push(parseFloat(token));
+                } else {
+                    switch (token) {
+                        case "+":
+                            stack.push(stack.pop() + stack.pop());
+                            break;
+                        case "-":
+                            stack.push(-stack.pop() + stack.pop());
+                            break;
+                        case "*":
+                            stack.push(stack.pop() * stack.pop());
+                            break;
+                        case "/":
+                            let divisor = stack.pop();
+                            stack.push(stack.pop() / divisor);
+                            break;
+                        case "sqrt":
+                            stack.push(Math.sqrt(stack.pop()));
+                            break;
+                        case "square":
+                            stack.push(Math.pow(stack.pop(), 2));
+                            break;
+                        case "cube":
+                            stack.push(Math.pow(stack.pop(), 3));
+                            break;
+                        case "pow":
+                            let exponent = stack.pop();
+                            stack.push(Math.pow(stack.pop(), exponent));
+                            break;
+                        case "ln":
+                            stack.push(Math.log(stack.pop()));
+                            break;
+                        case "log":
+                            let antilogarithm = stack.pop();
+                            let base = stack.pop();
+                            stack.push(Math.log(antilogarithm) / Math.log(base));
+                            break;
+                        default:
+                            throw new Error("Unsupported operation: " + token);
+                    }
+                }
+            });
+
+            if (stack.length !== 1) {
+                throw new Error("Invalid postfix expression");
+            }
+
+            return stack.pop();
+        }
+
+        function calculate(infix) {
+            return calculatePostfix(infixToPostfix(infix));
+        }
+
+        var calculatorTitle = document.getElementById("calculatorTitle");
+        var infixExpression = "";
+        var strong = "<strong>";
+        var _strong = "</strong>";
+        calculatorTitle.innerHTML = "GRPNC <em>PE</em> -- " + __version;
+        function updateResultDisplay(postfixExpression, result) {
+            document.getElementById("calculatedResult").innerHTML = "Result: " + strong + result + _strong;
+            document.getElementById("postfixResult").innerHTML = "RPN: " + strong + postfixExpression + _strong;
+        }
+        function updateInputValue() {
+            // 获取input元素
+            var inputElement = document.getElementById("expressionInput");
+            // 获取用户输入的内容
+            infixExpression = inputElement.value;
+            var postfixExpression = infixToPostfix(infixExpression);
+            var res = calculatePostfix(postfixExpression);
+            if (isNaN(res)) {
+                return;
+            }
+            updateResultDisplay(postfixExpression, res);
+        };
+    </script>
+</body>
+
+</html>
