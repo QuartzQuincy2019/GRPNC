@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Glue RPN Calculator</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width">
-    </head>
-    <body>
-    </body>
+
+<head>
+    <title>Glue RPN Calculator</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href=".\css\general.css" />
+    <script src=".\js\dv.js"></script>
+</head>
+
+<body>
+    <div id="calculator">
+        <h1 id="calculatorTitle">Glue RPN Calculator</h1>
+        <form id="calculatorForm">
+            <input required type="text" id="expressionInput" maxlength="255"
+                placeholder="Enter a linear mathematic expression here..." oninput="updateInputValue()">
+            <!-- Max Result: pow(2,1023)*1.999999999999999 -->
+        </form>
+        <p id="calculatedResult"><strong>calculatedResult</strong></p>
+        <p id="postfixResult"><strong>postfix(RPN)Result</strong></p>
+    </div>
+    <script src=".\js\core.js"></script>
+    <script src=".\js\display.js"></script>
+</body>
+
 </html>

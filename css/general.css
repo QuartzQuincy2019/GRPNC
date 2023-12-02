@@ -1,0 +1,121 @@
+body {
+    background-color: #f8db8a;
+}
+
+div#calculator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    color: #000;
+    padding: 8px;
+    text-align: left;
+    background-color: #ffffff60;
+    border: 4px solid #a94f00;
+    box-shadow: 0px 0px 6px #a94f00;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+div#calculator h1 {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+}
+
+div#calculator p {
+    font-size: 30px;
+    overflow-wrap: anywhere;
+}
+
+div#calculator p strong {
+    text-shadow: 0px 0px 1px #000;
+}
+
+p#calculatedResult {
+    font-family: 'Cambria Math';
+}
+
+p#calculatedResult strong {
+    font-size: 55px;
+}
+
+p#postfixResult {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+p#postfixResult strong {
+    font-size: 35px;
+}
+
+#calculator input[type="text"] {
+    outline: none;
+    display: inline-block;
+    width: 12%;
+    margin: 5px 0;
+    padding: 9px 11px;
+    box-sizing: border-box;
+
+    font-family: 'Cambria Math';
+    font-size: 40px;
+    color: #000000;
+
+    border-radius: 8px;
+    border: none;
+    border-bottom: solid;
+    border-width: 4px;
+    border-color: #000;
+
+    -webkit-transition: all 0.8s ease-in-out;
+    transition: all 0.8s ease-in-out;
+}
+
+#calculator input[type="text"]:focus {
+    color: #fff;
+    box-shadow: inset 0px 0px 10px #ffffff;
+    background-image: linear-gradient(135deg,
+            #00129c,
+            #510490,
+            #a60c7a,
+            #971639,
+            #230383);
+    background-size: 300%, 300%;
+    border-bottom: solid;
+    border-color: #fff;
+    width: 100%;
+    border-width: 4px;
+    animation: BackgroundMovement 8s ease-in-out infinite;
+}
+
+#calculator input[type="text"]:hover {
+    box-shadow: 0px 0px 13px #ffffff;
+    border-color: #ffee35;
+}
+
+#calculator input[type="text"]::selection {
+    background-color: #fff;
+    color: #000;
+    text-shadow: 1px 1px 3px #000;
+}
+
+@keyframes BackgroundMovement {
+    0% {
+        background-position: 0%, 0%;
+    }
+
+    25% {
+        background-position: 0%, 100%;
+    }
+
+    50% {
+        background-position: 100%, 100%;
+    }
+
+    75% {
+        background-position: 100%, 0%;
+    }
+
+    100% {
+        background-position: 0%, 0%;
+    }
+}
