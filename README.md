@@ -10,4 +10,4 @@ Thanks to the `Shunting Yard Algorithm`<br>
 **`Calc.html`**：电脑版主文件，用浏览器打开。（不要使用IE！）<br>
 **`CalcPE.html`**：手机版主文件，用浏览器打开。
 ### 注意事项
- - 欲了解计算式输入方法，请参见本仓库**[Wiki](https://github.com/QuartzQuincy2019/GRPNC/Wiki)**
+ - 欲了解计算式输入方法，请参见本仓库[**Wiki: 输入法则**](https://github.com/QuartzQuincy2019/GRPNC/wiki/InputRule)
