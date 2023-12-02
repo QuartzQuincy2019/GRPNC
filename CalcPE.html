@@ -38,16 +38,12 @@
             overflow-wrap: anywhere;
         }
 
-        div#calculator p strong {
-            text-shadow: 0 0 0.1em #000;
-        }
-
         p#calculatedResult {
             font-family: Arial, Helvetica, sans-serif;
         }
 
         p#calculatedResult strong {
-            font-size: 1.3em;
+            font-size: 1.4em;
         }
 
         p#postfixResult {
@@ -55,7 +51,7 @@
         }
 
         p#postfixResult strong {
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
         #calculator input[type="text"] {
@@ -105,7 +101,7 @@
         #calculator input[type="text"]::selection {
             background-color: #fff;
             color: #000;
-            text-shadow: 0 0 0.2em #000;
+            text-shadow: 0 0 0.1em #000;
         }
 
         div#calculator a {
@@ -137,7 +133,7 @@
     </style>
     <script>
         //dv.js
-        var __version = "v1.0.1";
+        var __version = "v1.1.0";
     </script>
 </head>
 
@@ -161,7 +157,7 @@
         }
 
         function isFunction(token) {
-            return token === "sqrt" || token === "pow" || token === "ln" || token === "log" || token === "square" || token === "cube";
+            return token === "sqrt" || token === "pow" || token === "ln" || token === "log" || token === "square" || token === "cube" || token === "lg";
         }
 
         function isSeparator(token) {
@@ -207,6 +203,9 @@
             let stack = [];
             let postfix = "";
             let pos = [0];
+            infix = infix.replace(/[\[{（]/g, '(');
+            infix = infix.replace(/[\]}）]/g, ')');
+            infix = infix.replace(/power\(/g, 'pow(');
 
             let token = getNextToken(infix, pos);
 
@@ -251,7 +250,7 @@
         let precedence = {
             "+": 1, "-": 1,
             "*": 2, "/": 2,
-            "sqrt": 3, "pow": 3, "ln": 3, "log": 3, "square": 3, "cube": 3,
+            "sqrt": 3, "pow": 3, "ln": 3, "log": 3, "square": 3, "cube": 3, "lg": 3,
             ",": 0
         };
 
@@ -299,6 +298,9 @@
                             let base = stack.pop();
                             stack.push(Math.log(antilogarithm) / Math.log(base));
                             break;
+                        case "lg":
+                            stack.push(Math.log(stack.pop()) / Math.log(10));
+                            break;
                         default:
                             throw new Error("Unsupported operation: " + token);
                     }
@@ -317,6 +319,8 @@
         }
 
         var calculatorTitle = document.getElementById("calculatorTitle");
+
+        //display.js
         var infixExpression = "";
         var strong = "<strong>";
         var _strong = "</strong>";

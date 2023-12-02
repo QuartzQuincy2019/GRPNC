@@ -3,7 +3,7 @@ function isOperator(token) {
 }
 
 function isFunction(token) {
-    return token === "sqrt" || token === "pow" || token === "ln" || token === "log" || token === "square" || token === "cube";
+    return token === "sqrt" || token === "pow" || token === "ln" || token === "log" || token === "square" || token === "cube" || token === "lg";
 }
 
 function isSeparator(token) {
@@ -49,6 +49,9 @@ function infixToPostfix(infix) {
     let stack = [];
     let postfix = "";
     let pos = [0];
+    infix = infix.replace(/[\[{（]/g, '(');
+    infix = infix.replace(/[\]}）]/g, ')');
+    infix = infix.replace(/power\(/g, 'pow(');
 
     let token = getNextToken(infix, pos);
 
@@ -93,7 +96,7 @@ function infixToPostfix(infix) {
 let precedence = {
     "+": 1, "-": 1,
     "*": 2, "/": 2,
-    "sqrt": 3, "pow": 3, "ln": 3, "log": 3, "square": 3, "cube": 3,
+    "sqrt": 3, "pow": 3, "ln": 3, "log": 3, "square": 3, "cube": 3, "lg": 3,
     ",": 0
 };
 
@@ -140,6 +143,9 @@ function calculatePostfix(postfix) {
                     let antilogarithm = stack.pop();
                     let base = stack.pop();
                     stack.push(Math.log(antilogarithm) / Math.log(base));
+                    break;
+                case "lg":
+                    stack.push(Math.log(stack.pop()) / Math.log(10));
                     break;
                 default:
                     throw new Error("Unsupported operation: " + token);

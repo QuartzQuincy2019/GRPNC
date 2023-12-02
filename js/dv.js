@@ -1,1 +1,1 @@
-var __version = "v1.0.1";
+var __version = "v1.1.0";
